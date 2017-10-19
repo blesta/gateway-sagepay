@@ -1,0 +1,9 @@
+{
+    "name": "blesta/sagepay",
+    "description": "Sage Pay",
+    "license": "proprietary",
+    "type": "blesta-gatsagepay-merchant",
+    "require": {
+        "blesta/composer-installer": "~1.0"
+    }
+}
