@@ -3,24 +3,24 @@
         <li>
             <?php
             $this->Form->label($this->_('Sagepay.vendor_name', true), 'vendor_name');
-            $this->Form->fieldText('vendor_name', $this->Html->ifSet($meta['vendor_name']), ['id' => 'vendor_name']);
+            $this->Form->fieldText('vendor_name', (isset($meta['vendor_name']) ? $meta['vendor_name'] : null), ['id' => 'vendor_name']);
             ?>
         </li>
         <li>
             <?php
             $this->Form->label($this->_('Sagepay.integration_key', true), 'integration_key');
-            $this->Form->fieldText('integration_key', $this->Html->ifSet($meta['integration_key']), ['id' => 'integration_key']);
+            $this->Form->fieldText('integration_key', (isset($meta['integration_key']) ? $meta['integration_key'] : null), ['id' => 'integration_key']);
             ?>
         </li>
         <li>
             <?php
             $this->Form->label($this->_('Sagepay.integration_password', true), 'integration_password');
-            $this->Form->fieldText('integration_password', $this->Html->ifSet($meta['integration_password']), ['id' => 'integration_password']);
+            $this->Form->fieldText('integration_password', (isset($meta['integration_password']) ? $meta['integration_password'] : null), ['id' => 'integration_password']);
             ?>
         </li>
         <li>
             <?php
-            $this->Form->fieldCheckbox('developer_mode', 'true', ($this->Html->ifSet($meta['developer_mode'], 'false') == 'true'), ['id' => 'developer_mode']);
+            $this->Form->fieldCheckbox('developer_mode', 'true', ((isset($meta['developer_mode']) ? $meta['developer_mode'] : 'false') == 'true'), ['id' => 'developer_mode']);
             $this->Form->label($this->_('Sagepay.developer_mode', true), 'developer_mode', ['class' => 'inline']);
             ?>
             <span class="tooltip"><?php $this->_('AppController.tooltip.text'); ?><div><?php $this->_('Sagepay.tooltip_developer_mode'); ?></div></span>

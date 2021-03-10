@@ -386,33 +386,33 @@ class Sagepay extends MerchantGateway implements MerchantCc
 
         // Create a list of all possible parameters
         $params = [
-            'transactionType' => $this->ifSet($transaction_types[$transaction_type]),
-            'referenceTransactionId' => $this->ifSet($transaction_id),
+            'transactionType' => (isset($transaction_types[$transaction_type]) ? $transaction_types[$transaction_type] : null),
+            'referenceTransactionId' => ($transaction_id ?? null),
             'paymentMethod' => [
                 'card' => [
-                    'merchantSessionKey' => $this->ifSet($merchant_session_key),
-                    'cardIdentifier' => $this->ifSet($card_identifier)
+                    'merchantSessionKey' => ($merchant_session_key ?? null),
+                    'cardIdentifier' => ($card_identifier ?? null)
                 ]
             ],
-            'vendorTxCode' => $this->ifSet($transaction_id, $unique_id),
+            'vendorTxCode' => (isset($transaction_id) ? $transaction_id : $unique_id),
             'amount' => (is_numeric($amount) ? 100 * $amount : $amount), // Amount must be in cents
-            'currency' => $this->ifSet($this->currency),
-            'description' => $this->ifSet($transaction_id, $unique_id),
+            'currency' => ($this->currency ?? null),
+            'description' => (isset($transaction_id) ? $transaction_id : $unique_id),
             'apply3DSecure' => 'Disable',
-            'customerFirstName' => $this->ifSet($card_info['first_name']),
-            'customerLastName' => $this->ifSet($card_info['last_name']),
+            'customerFirstName' => (isset($card_info['first_name']) ? $card_info['first_name'] : null),
+            'customerLastName' => (isset($card_info['last_name']) ? $card_info['last_name'] : null),
             'billingAddress' => [
-                'address1' => $this->ifSet($card_info['address1']),
-                'city' => $this->ifSet($card_info['city']),
-                'postalCode' => $this->ifSet($card_info['zip']),
-                'country' => $this->ifSet($card_info['country']['alpha2'])
+                'address1' => (isset($card_info['address1']) ? $card_info['address1'] : null),
+                'city' => (isset($card_info['city']) ? $card_info['city'] : null),
+                'postalCode' => (isset($card_info['zip']) ? $card_info['zip'] : null),
+                'country' => (isset($card_info['country']['alpha2']) ? $card_info['country']['alpha2'] : null)
             ],
             'entryMethod' => 'Ecommerce'
         ];
 
         // The state field is required for billing in the United States
         if ($params['billingAddress']['country'] == 'US') {
-            $params['billingAddress']['state'] = $this->ifSet($card_info['state']['code']);
+            $params['billingAddress']['state'] = (isset($card_info['state']['code']) ? $card_info['state']['code'] : null);
         }
 
         $required_fields = [];
@@ -496,13 +496,13 @@ class Sagepay extends MerchantGateway implements MerchantCc
             'Authorization: Basic '
             . base64_encode($this->meta['integration_key'] . ':' . $this->meta['integration_password'])
         );
-        $response = $this->Http->post($url, $this->ifSet($fields['json']));
+        $response = $this->Http->post($url, (isset($fields['json']) ? $fields['json'] : null));
 
         // Parse the response
         $response = $this->parseResponse($response);
 
         // Log the transaction (with the parsed response and unbuilt request fields)
-        $this->logRequest($this->ifSet($fields['fields']), $response, $url);
+        $this->logRequest((isset($fields['fields']) ? $fields['fields'] : null), $response, $url);
 
         // Set the response status
         $response_status = $this->getTransactionStatus($response);
@@ -515,8 +515,8 @@ class Sagepay extends MerchantGateway implements MerchantCc
 
         return [
             'status' => $status,
-            'reference_id' => $this->ifSet($response['retrievalReference']),
-            'transaction_id' => $this->ifSet($response['transactionId']),
+            'reference_id' => (isset($response['retrievalReference']) ? $response['retrievalReference'] : null),
+            'transaction_id' => (isset($response['transactionId']) ? $response['transactionId'] : null),
             'message' => $response_status['message']
         ];
     }
@@ -535,7 +535,7 @@ class Sagepay extends MerchantGateway implements MerchantCc
         // Assume status is an error
         $status = [
             'status' => 'error',
-            'message' => $this->ifSet($response['statusDetail'])
+            'message' => (isset($response['statusDetail']) ? $response['statusDetail'] : null)
         ];
 
         // Check the response status
@@ -588,13 +588,13 @@ class Sagepay extends MerchantGateway implements MerchantCc
         // Build parameters array
         $params = $this->buildJson([
             'cardDetails' => [
-                'cardholderName' => $this->ifSet($card_info['first_name'])
+                'cardholderName' => (isset($card_info['first_name']) ? $card_info['first_name'] : null)
                     . ' '
-                    . $this->ifSet($card_info['last_name']),
-                'cardNumber' => $this->ifSet($card_info['card_number']),
-                'expiryDate' => substr($this->ifSet($card_info['card_exp']), 4, 2)
-                    . substr($this->ifSet($card_info['card_exp']), 2, 2),
-                'securityCode' => $this->ifSet($card_info['card_security_code'])
+                    . (isset($card_info['last_name']) ? $card_info['last_name'] : null),
+                'cardNumber' => (isset($card_info['card_number']) ? $card_info['card_number'] : null),
+                'expiryDate' => substr((isset($card_info['card_exp']) ? $card_info['card_exp'] : null), 4, 2)
+                    . substr((isset($card_info['card_exp']) ? $card_info['card_exp'] : null), 2, 2),
+                'securityCode' => (isset($card_info['card_security_code']) ? $card_info['card_security_code'] : null)
             ]
         ]);
 
@@ -606,7 +606,7 @@ class Sagepay extends MerchantGateway implements MerchantCc
         // Parse the response
         $response = $this->parseResponse($response);
 
-        return $this->ifSet($response['cardIdentifier']);
+        return (isset($response['cardIdentifier']) ? $response['cardIdentifier'] : null);
     }
 
     /**
@@ -626,7 +626,7 @@ class Sagepay extends MerchantGateway implements MerchantCc
 
         // Build parameters array
         $params = $this->buildJson([
-            'vendorName' => $this->ifSet($this->meta['vendor_name'])
+            'vendorName' => (isset($this->meta['vendor_name']) ? $this->meta['vendor_name'] : null)
         ]);
 
         // Submit the request
@@ -640,7 +640,7 @@ class Sagepay extends MerchantGateway implements MerchantCc
         // Parse the response
         $response = $this->parseResponse($response);
 
-        return $this->ifSet($response['merchantSessionKey']);
+        return (isset($response['merchantSessionKey']) ? $response['merchantSessionKey'] : null);
     }
 
     /**
@@ -693,7 +693,7 @@ class Sagepay extends MerchantGateway implements MerchantCc
 
         // Use live mode only if developer is not set
         $test_mode = 'test';
-        if ($this->ifSet($this->meta['developer_mode']) == 'false') {
+        if ((isset($this->meta['developer_mode']) ? $this->meta['developer_mode'] : null) == 'false') {
             $test_mode = 'live';
         }
 
